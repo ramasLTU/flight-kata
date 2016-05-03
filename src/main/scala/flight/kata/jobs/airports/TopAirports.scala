@@ -17,7 +17,7 @@ class TopAirports(val sparkContext: SparkContext, val takeN: Int = 20)
 
     val topAirports = fileLines
       .flatMap(flight => Seq((flight.origin, 1), (flight.destination, 1)))        // map to pairs (airport, 1)
-      .reduceByKey(new HashPartitioner(10), _ + _)                                // sum by key, also reduce partitions
+      .reduceByKey(_ + _)                                                         // sum by key, also reduce partitions
       .takeOrdered(takeN)(Ordering[Int].reverse.on{ case (airport, cnt) => cnt }) // take N, ordered desc
 
     topAirports.foreach {

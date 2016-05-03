@@ -25,7 +25,7 @@ class TopDelayedLinks(val sparkContext: SparkContext, val takeN: Int = 20)
       }).filter{ case (route, delay) => delay > 0 }             // filter out on-time flights
 
     val topDelayed = delayed
-      .reduceByKey(new HashPartitioner(30), _ + _)                              // sum by link, also reduce partitions
+      .reduceByKey(_ + _)                                       // sum by link, also reduce partitions
       .takeOrdered(takeN)(Ordering[Int].reverse.on{ case (route, sum) => sum }) // take N, ordered desc
 
     topDelayed.foreach {
