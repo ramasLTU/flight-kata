@@ -1,10 +1,10 @@
-package flight.kata.jobs
+package flight.kata.jobs.airports
 
-import flight.kata.AppConfig
+import flight.kata.jobs.{AnalysisJob, AppConfig}
 import flight.kata.schema.FlightSchema
-import org.apache.spark.{Logging, SparkContext}
-
-import FlightSchema.ExtensionMethods;
+import flight.kata.schema.FlightSchema.ExtensionMethods
+import org.apache.spark.{HashPartitioner, Logging, SparkContext}
+;
 
 class TopAirports(val sparkContext: SparkContext, val takeN: Int = 20)
   extends AnalysisJob with AppConfig with Logging {
@@ -16,10 +16,9 @@ class TopAirports(val sparkContext: SparkContext, val takeN: Int = 20)
       .filter(cells => cells(0) != "Year")            // dirty, yet effective header removal
 
     val topAirports = fileLines
-      .flatMap(flight => Seq((flight.origin, 1), (flight.destination, 1)))  // map to pairs (airport, 1)
-      .reduceByKey(_ + _)                                                   // sum by key
-      .sortBy( { case (airport, cnt) => cnt }, ascending = false)           // sort by count descending
-      .take(takeN)                                                          // take N, ordered desc
+      .flatMap(flight => Seq((flight.origin, 1), (flight.destination, 1)))        // map to pairs (airport, 1)
+      .reduceByKey(new HashPartitioner(10), _ + _)                                // sum by key, also reduce partitions
+      .takeOrdered(takeN)(Ordering[Int].reverse.on{ case (airport, cnt) => cnt }) // take N, ordered desc
 
     topAirports.foreach {
       case (airport, cnt) => logInfo(s"$airport: $cnt")

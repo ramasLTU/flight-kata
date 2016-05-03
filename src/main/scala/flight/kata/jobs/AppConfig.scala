@@ -1,4 +1,4 @@
-package flight.kata
+package flight.kata.jobs
 
 import com.typesafe.config.{Config, ConfigFactory}
 

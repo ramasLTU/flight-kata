@@ -19,6 +19,15 @@ object FlightSchema {
       getValue("Year").toInt * 10000 + getValue("Month").toInt * 100 + getValue("DayofMonth").toInt
     }
 
+    def dayOfWeek: Int = {
+      getValue("DayOfWeek").toInt
+    }
+
+    def departureTime: Int = {
+      val txt = getValue("DepTime")
+      if (notAvailable(txt)) 0 else txt.toInt
+    }
+
     def origin: String = {
       getValue("Origin")
     }
