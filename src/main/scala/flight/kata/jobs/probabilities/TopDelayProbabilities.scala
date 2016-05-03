@@ -3,7 +3,7 @@ package flight.kata.jobs.probabilities
 import flight.kata.jobs.{AnalysisJob, AppConfig}
 import flight.kata.schema.FlightSchema.ExtensionMethods
 
-import org.apache.spark.{Logging, SparkContext};
+import org.apache.spark.{Logging, SparkContext}
 
 class TopDelayProbabilities(val sparkContext: SparkContext, val takeN: Int = 100)
   extends AnalysisJob with AppConfig with Logging {
@@ -23,7 +23,7 @@ class TopDelayProbabilities(val sparkContext: SparkContext, val takeN: Int = 100
       (interval: DelayInterval) => new IntervalCounts().increment(interval),      // build aggregator
       (cnt: IntervalCounts, interval: DelayInterval) => cnt.increment(interval),  // add value to aggregator
       (cnt1: IntervalCounts, cnt2: IntervalCounts) => cnt1.merge(cnt2)            // merge two aggregators
-    )
+    ) // no point in repartition here, too many unique keys...
 
     val probabilities = combined
       .map { case (key, counts) => (key, Probabilities(counts)) }                          // map to probabilities

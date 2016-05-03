@@ -11,7 +11,7 @@ class IntervalCountsTest extends FunSuite with Matchers {
   test("increment") {
     val counts = new IntervalCounts().increment(DelayInterval.OnTime)
     counts.size shouldEqual 1
-    counts.getOrElse(DelayInterval.OnTime, 0) shouldEqual 1
+    counts.get(DelayInterval.OnTime) shouldEqual 1
   }
 
   test("repeated increments") {
@@ -20,7 +20,7 @@ class IntervalCountsTest extends FunSuite with Matchers {
       .increment(DelayInterval.OnTime)
       .increment(DelayInterval.OnTime)
     counts.size shouldEqual 1
-    counts.getOrElse(DelayInterval.OnTime, 0) shouldEqual 3
+    counts.get(DelayInterval.OnTime) shouldEqual 3
   }
 
   test("mixed increments") {
@@ -29,20 +29,20 @@ class IntervalCountsTest extends FunSuite with Matchers {
       .increment(DelayInterval.Over10)
       .increment(DelayInterval.Under10)
     counts.size shouldEqual 2
-    counts.getOrElse(DelayInterval.Under10, 0) shouldEqual 2
-    counts.getOrElse(DelayInterval.Over10, 0) shouldEqual 1
+    counts.get(DelayInterval.Under10) shouldEqual 2
+    counts.get(DelayInterval.Over10) shouldEqual 1
   }
 
   test("bigger increment") {
     val counts = new IntervalCounts()
       .increment(DelayInterval.OnTime, 3)
       .increment(DelayInterval.OnTime, 2)
-    counts.getOrElse(DelayInterval.OnTime, 0) shouldEqual 5
+    counts.get(DelayInterval.OnTime) shouldEqual 5
   }
 
   test("repeated bigger increments") {
     val counts = new IntervalCounts().increment(DelayInterval.OnTime, 3)
-    counts.getOrElse(DelayInterval.OnTime, 0) shouldEqual 3
+    counts.get(DelayInterval.OnTime) shouldEqual 3
   }
 
   test("merge") {
@@ -57,9 +57,9 @@ class IntervalCountsTest extends FunSuite with Matchers {
     val merged = cnt1.merge(cnt2)
 
     merged.size shouldEqual 3
-    merged.getOrElse(DelayInterval.OnTime, 0) shouldEqual 1
-    merged.getOrElse(DelayInterval.Under10, 0) shouldEqual 7
-    merged.getOrElse(DelayInterval.Over10, 0) shouldEqual 3
+    merged.get(DelayInterval.OnTime) shouldEqual 1
+    merged.get(DelayInterval.Under10) shouldEqual 7
+    merged.get(DelayInterval.Over10) shouldEqual 3
   }
 
 }

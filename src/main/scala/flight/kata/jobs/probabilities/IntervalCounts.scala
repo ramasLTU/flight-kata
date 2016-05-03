@@ -1,16 +1,24 @@
 package flight.kata.jobs.probabilities
 
-import scala.collection.mutable
+import scala.collection.mutable.HashMap
 
-class IntervalCounts extends mutable.HashMap[DelayInterval, Int]() {
+class IntervalCounts extends Serializable {
+
+  private val map = new HashMap[DelayInterval, Int]
+
+  def size = map.size
+
+  def sumValues = map.values.sum
+
+  def get(interval: DelayInterval): Int = map.getOrElse(interval, 0)
 
   def increment(interval: DelayInterval, delta : Int = 1): IntervalCounts = {
-    this.put(interval, this.get(interval).getOrElse(0) + delta)
+    map.put(interval, get(interval) + delta)
     this
   }
 
   def merge(other: IntervalCounts): IntervalCounts = {
-    other.keySet.foreach( k => increment(k, other.get(k).get) )
+    other.map.keySet.foreach( k => increment(k, other.get(k)) )
     this
   }
 }

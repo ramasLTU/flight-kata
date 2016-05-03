@@ -21,6 +21,7 @@ object RunTopDelayedLinks extends Runner {
 object RunTopDelayProbabilities extends Runner {
   def main(args: Array[String]): Unit = {
     new TopDelayProbabilities(buildSparkContext("TopDelayProbabilities")).run()
+    Console.readLine();
   }
 }
 
