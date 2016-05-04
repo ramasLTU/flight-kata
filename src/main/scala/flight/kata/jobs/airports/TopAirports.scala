@@ -1,19 +1,17 @@
 package flight.kata.jobs.airports
 
+import flight.kata.jobs.model.Flight
 import flight.kata.jobs.{AnalysisJob, AppConfig}
-import flight.kata.schema.FlightSchema
-import flight.kata.schema.FlightSchema.ExtensionMethods
-import org.apache.spark.{HashPartitioner, Logging, SparkContext}
-;
+import org.apache.spark.{Logging, SparkContext}
 
 class TopAirports(val sparkContext: SparkContext, val takeN: Int = 20)
   extends AnalysisJob with AppConfig with Logging {
 
   def run(): Unit = {
     val fileLines = sparkContext
-      .textFile(appConfig.getString("app.data-dir"))  // read data
-      .map(line => line.split(",", -1))               // split by comma, keep empty columns
-      .filter(cells => cells(0) != "Year")            // dirty, yet effective header removal
+      .textFile(appConfig.getString("app.data-dir"))            // read data
+      .filter(row => row.substring(0, 4) != "Year")             // dirty but effective header removal
+      .map(row => Flight(row))                                  // map to Flight model
 
     val topAirports = fileLines
       .flatMap(flight => Seq((flight.origin, 1), (flight.destination, 1)))        // map to pairs (airport, 1)
@@ -21,7 +19,7 @@ class TopAirports(val sparkContext: SparkContext, val takeN: Int = 20)
       .takeOrdered(takeN)(Ordering[Int].reverse.on{ case (airport, cnt) => cnt }) // take N, ordered desc
 
     topAirports.foreach {
-      case (airport, cnt) => logInfo(s"$airport: $cnt")
+      case (airport, cnt) => Console.println(s"$airport: $cnt")
     }
   }
 

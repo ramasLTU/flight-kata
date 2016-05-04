@@ -1,9 +1,8 @@
 package flight.kata.jobs.delayed
 
+import flight.kata.jobs.model.Flight
 import flight.kata.jobs.{AnalysisJob, AppConfig}
-import flight.kata.schema.FlightSchema.ExtensionMethods
-import org.apache.spark.{HashPartitioner, Logging, SparkContext}
-;
+import org.apache.spark.{Logging, SparkContext}
 
 class TopDelayedLinks(val sparkContext: SparkContext, val takeN: Int = 20)
   extends AnalysisJob with AppConfig with Logging with Serializable {
@@ -15,8 +14,8 @@ class TopDelayedLinks(val sparkContext: SparkContext, val takeN: Int = 20)
 
     val fileLines = sparkContext
       .textFile(appConfig.getString("app.data-dir"))            // read data
-      .map(line => line.split(",", -1))                         // split by comma, keep empty columns
-      .filter(cells => cells(0) != "Year")                      // dirty, yet effective header removal
+      .filter(row => row.substring(0, 4) != "Year")             // dirty but effective header removal
+      .map(row => Flight(row))                                  // map to Flight model
 
     val delayed = fileLines
       .map(flight => {                                          // for each flight..
@@ -28,12 +27,13 @@ class TopDelayedLinks(val sparkContext: SparkContext, val takeN: Int = 20)
       .reduceByKey(_ + _)                                       // sum by link, also reduce partitions
       .takeOrdered(takeN)(Ordering[Int].reverse.on{ case (route, sum) => sum }) // take N, ordered desc
 
+    Console.println(s"Top $takeN delayed links")
     topDelayed.foreach {
-      case (route, sum) => logInfo(s"$route: $sum total delay minutes")
+      case (route, sum) => Console.println(s"$route: $sum total delay minutes")
     }
 
-    logInfo(s"Analyzed ${stats.value.count} links")
-    logInfo(s"Earliest date : ${stats.value.minDate} ")
-    logInfo(s"Latest date : ${stats.value.maxDate}")
+    Console.println(s"Analyzed ${stats.value.count} links")
+    Console.println(s"Earliest date : ${stats.value.minDate} ")
+    Console.println(s"Latest date : ${stats.value.maxDate}")
   }
 }

@@ -1,9 +1,8 @@
 package flight.kata.jobs.probabilities
 
-import flight.kata.FlightBuilder
-import org.scalatest.{Matchers, FunSuite}
-
-import org.mockito.Matchers.{any}
+import flight.kata.jobs.model.Flight
+import org.mockito.Matchers.any
+import org.scalatest.{FunSuite, Matchers}
 
 class AggregateKeyTest extends FunSuite with Matchers {
 
@@ -31,11 +30,7 @@ class AggregateKeyTest extends FunSuite with Matchers {
     new AggregateKey(getFlighAt(2359)).timeBlock shouldEqual 5
   }
 
-  def getFlighAt(time: Int): Array[String] = {
-    new FlightBuilder()
-      .from(any[String])
-      .to(any[String])
-      .weekday(any[Int])
-      .departureTime(time).row
+  def getFlighAt(time: Int): Flight = {
+    new Flight(any[Int], any[Int], any[String], any[String], time, any[Int])
   }
 }

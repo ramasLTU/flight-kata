@@ -1,9 +1,8 @@
 package flight.kata.jobs.probabilities
 
+import flight.kata.jobs.model.Flight
 import flight.kata.jobs.{AnalysisJob, AppConfig}
-import flight.kata.schema.FlightSchema.ExtensionMethods
-
-import org.apache.spark.{HashPartitioner, Logging, SparkContext}
+import org.apache.spark.{Logging, SparkContext}
 
 class TopDelayProbabilities(val sparkContext: SparkContext, val takeN: Int = 100)
   extends AnalysisJob with AppConfig with Logging {
@@ -11,9 +10,9 @@ class TopDelayProbabilities(val sparkContext: SparkContext, val takeN: Int = 100
   def run(): Unit = {
 
     val fileLines = sparkContext
-      .textFile(appConfig.getString("app.data-dir")) // read data
-      .map(line => line.split(",", -1))                     // split by comma, keep empty columns
-      .filter(cells => cells(0) != "Year")                  // dirty, yet effective header removal
+      .textFile(appConfig.getString("app.data-dir"))        // read data
+      .filter(row => row.substring(0, 4) != "Year")         // dirty but effective header removal
+      .map(row => Flight(row))                              // map to Flight model
 
     val delayIntervals = fileLines                          // first, we'll prepare tuples (key, interval)
       .map(flight => ( new AggregateKey(flight), DelayInterval.fromDelay(flight.delay)))
@@ -29,8 +28,9 @@ class TopDelayProbabilities(val sparkContext: SparkContext, val takeN: Int = 100
       .map { case (key, counts) => (key, Probabilities(counts)) }                          // map to probabilities
       .takeOrdered(takeN)(Ordering[Double].reverse.on{ case (key, prob) => prob.over10 })  // take N, ordered desc
 
+    Console.println(s"Top $takeN probabilities to be late more that 10 minutes")
     probabilities.foreach {
-      case (key, prob) => logInfo(s"$key $prob")
+      case (key, prob) => Console.println(s"$key $prob")
     }
   }
 }
