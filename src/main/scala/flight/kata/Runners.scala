@@ -6,21 +6,21 @@ import flight.kata.jobs.probabilities.TopDelayProbabilities
 
 import org.apache.spark.{SparkContext, SparkConf}
 
-object RunTopAirports extends Runner {
+class RunTopAirports extends Runner {
   def main(args: Array[String]): Unit = {
-    new TopAirports(buildSparkContext("TopAirports")).run()
+    new TopAirports(buildSparkContext("TopAirports")).run(getDataPath(args))
   }
 }
 
-object RunTopDelayedLinks extends Runner {
+class RunTopDelayedLinks extends Runner {
   def main(args: Array[String]): Unit = {
-    new TopDelayedLinks(buildSparkContext("TopDelayedLinks")).run()
+    new TopDelayedLinks(buildSparkContext("TopDelayedLinks")).run(getDataPath(args))
   }
 }
 
-object RunTopDelayProbabilities extends Runner {
+class RunTopDelayProbabilities extends Runner {
   def main(args: Array[String]): Unit = {
-    new TopDelayProbabilities(buildSparkContext("TopDelayProbabilities")).run()
+    new TopDelayProbabilities(buildSparkContext("TopDelayProbabilities")).run(getDataPath(args))
     Console.readLine();
   }
 }
@@ -37,4 +37,13 @@ abstract class Runner {
 
     new SparkContext(sparkConf)
   }
+
+  def getDataPath(args: Array[String]): String = {
+    if (args.length != 1) {
+      System.err.println("Usage: <data path>")
+      System.exit(1)
+    }
+    args(0)
+  }
+
 }

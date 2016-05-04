@@ -8,10 +8,10 @@ spark-submit \
     --master yarn-cluster \
     --name TopAirports \
     --num-executors 4 \
-    --driver-memory 512M  \
+    --driver-memory 1G  \
     --driver-java-options "-XX:+UseG1GC" \
-    --executor-memory 512M \
-    --executor-cores 2 \
+    --executor-memory 2G \
+    --executor-cores 4 \
     --conf 'spark.executor.extraJavaOptions=-XX:+UseG1GC' \
     flight-kata-1.0-SNAPSHOT.jar ${1}
 

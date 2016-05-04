@@ -7,13 +7,13 @@ import org.apache.spark.{Logging, SparkContext}
 class TopDelayedLinks(val sparkContext: SparkContext, val takeN: Int = 20)
   extends AnalysisJob with AppConfig with Logging with Serializable {
 
-  def run(): Unit = {
+  def run(dataPath: String): Unit = {
 
     implicit val param = new LinksStatsAP() // required implicit parameter for accumulator
     val stats = sparkContext.accumulator[LinksStats](new LinksStats(), "stats")
 
     val fileLines = sparkContext
-      .textFile(appConfig.getString("app.data-dir"))            // read data
+      .textFile(dataPath)                                       // read data
       .filter(row => row.substring(0, 4) != "Year")             // dirty but effective header removal
       .map(row => Flight(row))                                  // map to Flight model
 

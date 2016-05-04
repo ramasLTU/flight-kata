@@ -8,19 +8,25 @@ import org.apache.spark.{SparkContext, SparkConf}
 
 object LocalRunTopAirports extends LocalRunner {
   def main(args: Array[String]): Unit = {
-    new TopAirports(buildSparkContext("TopAirports")).run()
+    new TopAirports(buildSparkContext("TopAirports")).run("data")
   }
 }
 
 object LocalRunTopDelayedLinks extends LocalRunner {
   def main(args: Array[String]): Unit = {
-    new TopDelayedLinks(buildSparkContext("TopDelayedLinks")).run()
+    new TopDelayedLinks(buildSparkContext("TopDelayedLinks")).run("data")
   }
 }
 
 object LocalRunTopDelayProbabilities extends LocalRunner {
   def main(args: Array[String]): Unit = {
-    new TopDelayProbabilities(buildSparkContext("TopDelayProbabilities")).run()
+    new TopDelayProbabilities(buildSparkContext("TopDelayProbabilities")).run("data")
+  }
+}
+
+object LocalRunTopDelayProbabilitiesWithThreshold extends LocalRunner {
+  def main(args: Array[String]): Unit = {
+    new TopDelayProbabilities(buildSparkContext("TopDelayProbabilities"), threshold = 100).run("data")
   }
 }
 
